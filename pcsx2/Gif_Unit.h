@@ -318,6 +318,7 @@ struct Gif_Path
 				if (curOffset + 16 > curSize)
 				{
 					//GUNIT_LOG("Path Buffer: Not enough data for gif tag! [%d]", curSize-curOffset);
+					//GUNIT_WARN("PATH %d not enough data pre tag, available %d wanted %d", gifRegs.stat.APATH, curSize - curOffset, 16);
 					return gsPack;
 				}
 
@@ -330,11 +331,12 @@ struct Gif_Path
 				gifTag.setTag(&buffer[curOffset], 1);
 
 				state = (GIF_PATH_STATE)(gifTag.tag.FLG + 1);
-
+				//GUNIT_WARN("PATH %d New tag State %d FLG %d EOP %d NLOOP %d", gifRegs.stat.APATH, gifRegs.stat.APATH, state, gifTag.tag.FLG, gifTag.tag.EOP, gifTag.tag.NLOOP);
 				// We don't have enough data for a complete GS packet
 				if (!gifTag.hasAD && curOffset + 16 + gifTag.len > curSize)
 				{
 					gifTag.isValid = false; // So next time we test again
+					//GUNIT_WARN("PATH %d not enough data, available %d wanted %d", gifRegs.stat.APATH, curSize - curOffset, 16 + gifTag.len);
 					return gsPack;
 				}
 
@@ -348,7 +350,10 @@ struct Gif_Path
 				while (gifTag.nLoop && !dblSIGNAL)
 				{
 					if (curOffset + 16 > curSize)
+					{
+						//GUNIT_WARN("PATH %d not enough data AD, available %d wanted %d", gifRegs.stat.APATH, curSize - curOffset, 16);
 						return gsPack; // Exit Early
+					}
 					if (gifTag.curReg() == GIF_REG_A_D)
 					{
 						if (!isMTVU())
@@ -358,7 +363,10 @@ struct Gif_Path
 					gifTag.packedStep();
 				}
 				if (dblSIGNAL && !(gifTag.tag.EOP && !gifTag.nLoop))
+				{
+					//GUNIT_WARN("PATH %d early exit (double signal)", gifRegs.stat.APATH);
 					return gsPack; // Exit Early
+				}
 			} 			
 			else
 				incTag(curOffset, gsPack.size, gifTag.len); // Data length
@@ -375,7 +383,7 @@ struct Gif_Path
 
 				gsPack.Reset();
 				gsPack.offset = curOffset;
-
+				//GUNIT_WARN("EOP PATH %d", gifRegs.stat.APATH);
 				//Path 3 Masking is timing sensitive, we need to simulate its length! (NFSU2/Outrun 2006)
 
 				if ((gifRegs.stat.APATH - 1) == GIF_PATH_3)
@@ -550,12 +558,14 @@ struct Gif_Unit
 			incTag(offset, curSize, 16 + gifTag.len); // Tag + Data length
 			if (pathIdx == GIF_PATH_1 && curSize >= 0x4000)
 			{
-				log_cb(RETRO_LOG_DEBUG, "Gif Unit - GS packet size exceeded VU memory size!\n");
+				//log_cb(RETRO_LOG_DEBUG, "Gif Unit - GS packet size exceeded VU memory size!\n");
 				return 0; // Bios does this... (Fixed if you delay vu1's xgkick by 103 vu cycles)
 			}
 			if (curSize >= size)
 				return size;
-			if (gifTag.tag.EOP)
+			if(!EmuConfig.Cpu.Recompiler.EnableVU1 && pathIdx == GIF_PATH_1)
+				return curSize | ((u32)gifTag.tag.EOP << 31);
+			if (gifTag.tag.EOP )
 				return curSize;
 		}
 	}
@@ -690,6 +700,7 @@ struct Gif_Unit
 			return 0;
 		}
 		bool didPath3 = false;
+		bool path3Check = isPath3;
 		int curPath = stat.APATH > 0 ? stat.APATH - 1 : 0; //Init to zero if no path is already set.
 		gifPath[2].dmaRewind = 0;
 		stat.OPH = 1;
@@ -739,18 +750,21 @@ struct Gif_Unit
 			}
 			if (!gsSIGNAL.queued && !gifPath[0].isDone())
 			{
+				//GUNIT_WARN("Swapping to PATH 1");
 				stat.APATH = 1;
 				stat.P1Q = 0;
 				curPath = 0;
 			} 			
 			else if (!gsSIGNAL.queued && !gifPath[1].isDone())
 			{
+				//GUNIT_WARN("Swapping to PATH 2");
 				stat.APATH = 2;
 				stat.P2Q = 0;
 				curPath = 1;
 			} 			
 			else if (!gsSIGNAL.queued && !gifPath[2].isDone() && !Path3Masked())
 			{
+				//GUNIT_WARN("Swapping to PATH 3");
 				stat.APATH = 3;
 				stat.P3Q = 0;
 				stat.IP3 = 0;
@@ -758,8 +772,20 @@ struct Gif_Unit
 			} 			
 			else
 			{
-				if (isResume || curPath == 0)
+				//GUNIT_WARN("Finished Processing");
+				// If PATH3 was stalled due to another transfer but the DMA ended, it'll never check this
+				// So lets quickly check if it's currently set to path3
+				if (stat.APATH == 3 || path3Check)
+					gifCheckPathStatus(true);
+				else
 				{
+					if (vif1Regs.stat.VGW)
+					{
+						// Check if VIF is in a cycle or is currently "idle" waiting for GIF to come back.
+						if (!(cpuRegs.interrupt & (1 << DMAC_VIF1)))
+							CPU_INT(DMAC_VIF1, 1);
+					}
+
 					stat.APATH = 0;
 					stat.OPH = 0;
 				}

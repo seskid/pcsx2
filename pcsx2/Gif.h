@@ -299,3 +299,4 @@ extern void dmaGIF();
 extern void mfifoGIFtransfer();
 extern void gifMFIFOInterrupt();
 extern void clearFIFOstuff(bool full);
+extern void gifCheckPathStatus(bool calledFromGIF);
