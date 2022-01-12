@@ -630,7 +630,7 @@ set(pcsx2FinalLibs
 )
 
 set(pcsx2FinalLibs GS ${pcsx2FinalLibs})
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
   set(pcsx2FinalSources ${pcsx2FinalSources})
 endif()
 
@@ -642,7 +642,7 @@ include_directories(
     ${CMAKE_BINARY_DIR}/pcsx2/gui
 )
 
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 #   include_directories(x86/ix86-32 IPU System)
    add_definitions(-D_M_X86 -D__i386__ -DTIXML_USE_STL -D_SCL_SECURE_NO_WARNINGS)
    add_definitions(-D_ARCH_64=1 -D_M_X86_64 -D__M_X86_64) #64-bit
@@ -666,7 +666,7 @@ endif()
       set(CLANG 1)
    endif()
 
-   if(NOT MSVC AND NOT CLANG)
+   if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC" AND NOT CLANG)
       set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--no-undefined")
    endif()
 

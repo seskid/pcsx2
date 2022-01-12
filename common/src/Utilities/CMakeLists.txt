@@ -30,7 +30,7 @@ set(UtilitiesFinalFlags ${CommonFlags})
 		ThreadTools.cpp
       		wxAppWithHelpers.cpp
 		)
-   if(NOT MSVC)
+   if(NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
    set(UtilitiesSources ${UtilitiesSources}
       AlignedMalloc.cpp
       Linux/LnxHostSys.cpp)
@@ -87,7 +87,7 @@ else()
 	)
 endif()
 
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
    enable_language(ASM_MASM)
 set(UtilitiesFinalSources
 	${UtilitiesSources}
@@ -109,7 +109,7 @@ set(UtilitiesFinalLibs
 	chdr-static
 )
 
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
    set(UtilitiesFinalLibs ${UtilitiesFinalLibs} pthread)
 endif()
 

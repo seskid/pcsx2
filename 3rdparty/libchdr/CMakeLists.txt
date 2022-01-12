@@ -87,7 +87,7 @@ if (BUILD_SHARED_LIBS)
   target_compile_definitions(chdr PRIVATE ${CHDR_DEFS})
   target_link_libraries(chdr PRIVATE ${CHDR_LIBS} ${PLATFORM_LIBS})
 
-  if(MSVC)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
     target_compile_definitions(chdr PUBLIC "CHD_DLL")
     target_compile_definitions(chdr PRIVATE "CHD_DLL_EXPORTS")
   elseif(APPLE)

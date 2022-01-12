@@ -22,7 +22,7 @@ set(wxWidgets_USE_FILE 3rdparty/wxwidgets3.0/UsewxWidgets.cmake)
 find_package(ZLIB)
 
 ## Use pcsx2 package to find module
-if (NOT MSVC)
+if (NOT CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
    include(FindLibc)
 endif()
 
@@ -36,7 +36,10 @@ endif()
 ## Use CheckLib package to find module
 include(CheckLib)
 if(Linux)
+message("is linux")
     check_lib(AIO aio libaio.h)
+else()
+message("not linux")
 endif()
 
 #----------------------------------------
@@ -59,7 +62,10 @@ if(OPENGL_FOUND)
 endif()
 
 if(wxWidgets_FOUND)
+     message("wxwidgets found")
 	include(${wxWidgets_USE_FILE})
+else()
+  message("wxWidgets not found")
 endif()
 
 if(PCAP_FOUND)
@@ -87,7 +93,7 @@ if(NOT LIBLZMA_FOUND)
    add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/xz)
 endif()
 
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
    add_definitions(-DPTW32_STATIC_LIB)
 #   add_definitions(-D__CLEANUP_SEH)
    add_subdirectory(${CMAKE_SOURCE_DIR}/3rdparty/pthreads4w)
