@@ -23,7 +23,6 @@
 #include "DDS.h"
 #include "GSUtil.h"
 #include "GSLocalMemory.h"
-#include "ghc/filesystem.h"
 #include "yaml-cpp/yaml.h"
 #include <iostream>
 #include <fstream>
@@ -1231,9 +1230,6 @@ void GSRendererHW::Draw()
 		std::string _pathSys = "textures\\@DUMP\\";
 
 		_pathSys.append(_crcText);
-
-		if (ghc::filesystem::create_directories(_pathSys))
-			printf("GSdx: Creating necessary folders if they do not exist.\n");
 	}
 
 	// If the mode is set to dumping, and the yaml data has been processed;
@@ -1681,7 +1677,7 @@ void GSRendererHW::Draw()
 										// origin UV information.
 
 										int const _wt = (1 << m_context->TEX0.TW) / _u;
-										int const _ht = (1 << static_cast<uint32>(m_context->TEX0.TH)) / _v;
+										int const _ht = (1 << static_cast<uint32_t>(m_context->TEX0.TH)) / _v;
 
 										// Generate the new canvas size for the replacement.
 
@@ -1724,7 +1720,7 @@ void GSRendererHW::Draw()
 										_fH += 32 - (_fH % 32);
 
 										int const _wt = (1 << m_context->TEX0.TW) / _fW;
-										int const _ht = (1 << static_cast<uint32>(m_context->TEX0.TH)) / _fH;
+										int const _ht = (1 << static_cast<uint32_t>(m_context->TEX0.TH)) / _fH;
 
 										auto _w = _wt * _ddsFile.Header.dwWidth;
 										auto _h = _ht * _ddsFile.Header.dwHeight;
@@ -1817,7 +1813,7 @@ void GSRendererHW::Draw()
 		// allocated memory for the image data.
 
 		auto _offset = m_mem.GetOffset(m_context->TEX0.TBP0, m_context->TEX0.TBW, m_context->TEX0.PSM);
-		auto _pointer = static_cast<uint8*>(_data);
+		auto _pointer = static_cast<uint8_t*>(_data);
 
 		// Capture the texture data.
 
