@@ -22,6 +22,8 @@
 #include "Pcsx2Types.h"
 
 #include "GSUtil.h"
+#include <sstream>
+#include <iomanip>
 
 #ifdef _WIN32
 #include "Renderers/DX11/GSDevice11.h"
@@ -111,6 +113,20 @@ GS_PRIM_CLASS GSUtil::GetPrimClass(u32 prim)
 int GSUtil::GetVertexCount(u32 prim)
 {
 	return s_maps.VertexCountField[prim];
+}
+
+std::string GSUtil::GetHEX32String(uint32_t input)
+{
+	std::string _tempStr;
+	std::stringstream _convStream;
+
+	_convStream.seekg(0, std::ios::beg);
+	_convStream << std::setfill('0') << std::setw(8) << std::hex << input;
+
+	_tempStr = _convStream.str();
+	std::transform(_tempStr.begin(), _tempStr.end(), _tempStr.begin(), ::toupper);
+
+	return _tempStr;
 }
 
 int GSUtil::GetClassVertexCount(u32 primclass)

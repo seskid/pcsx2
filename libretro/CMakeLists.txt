@@ -32,7 +32,6 @@ if(LIBRETRO_STATIC)
       x86emitter
       ${wxWidgets_LIBRARIES}
       ${ZLIB_LIBRARIES}
-      ${AIO_LIBRARIES}
       ${GCOV_LIBRARIES}
       ${LIBUDEV_LIBRARIES}
       "${pcsx2FinalFlags}"

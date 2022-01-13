@@ -33,6 +33,7 @@ namespace PboPool {
 
 	inline char* Map(u32 size);
 	inline void  Unmap();
+	
 	inline uptr  Offset();
 	inline void  EndTransfer();
 
@@ -73,6 +74,7 @@ class GSTextureOGL final : public GSTexture
 		bool Update(const GSVector4i& r, const void* data, int pitch, int layer = 0) final;
 		bool Map(GSMap& m, const GSVector4i* r = NULL, int layer = 0) final;
 		void Unmap() final;
+		bool SaveDDS(const std::string& fn) final;
 		void GenerateMipmap() final;
 
 		bool IsBackbuffer() { return (m_type == GSTexture::Backbuffer); }

@@ -45,7 +45,7 @@ private:
 	inline void EmulateBlending();
 	inline void EmulateTextureShuffleAndFbmask();
 	inline void EmulateChannelShuffle(GSTexture** rt, const GSTextureCache::Source* tex);
-	inline void EmulateTextureSampler(const GSTextureCache::Source* tex);
+	inline void EmulateTextureSampler(const GSTextureCache::Source* tex,GSTexture* inp = nullptr);
 
 	GSDevice11::VSSelector m_vs_sel;
 	GSDevice11::GSSelector m_gs_sel;
@@ -63,7 +63,7 @@ public:
 	GSRendererDX11();
 	virtual ~GSRendererDX11() {}
 
-	void DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Source* tex) final;
+	void DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Source* tex,GSTexture* inp);
 
 	bool CreateDevice(GSDevice* dev);
 };

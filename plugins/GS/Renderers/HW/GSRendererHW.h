@@ -22,7 +22,6 @@
 #pragma once
 
 #include "Pcsx2Types.h"
-
 #include "GSTextureCache.h"
 #include "../Common/GSFunctionMap.h"
 #include "../../GSState.h"
@@ -30,6 +29,7 @@
 class GSRendererHW : public GSRenderer
 {
 private:
+    int frame_iterator;
 	int m_width;
 	int m_height;
 	int m_custom_width;
@@ -149,7 +149,8 @@ protected:
 	GSVector4i m_r;
 	GSTextureCache::Source* m_src;
 
-	virtual void DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Source* tex) = 0;
+    virtual void DrawPrims(GSTexture* rt, GSTexture* ds, GSTextureCache::Source* tex, GSTexture* inp = nullptr) = 0;
+	int TryParseYaml();
 
 	int m_userhacks_round_sprite_offset;
 	int m_userHacks_HPO;
@@ -162,6 +163,9 @@ protected:
 	int m_accurate_date;
 	int m_sw_blending;
 
+    bool m_enable_textures ;
+	bool m_dump_textures;
+	bool m_replace_textures;
 	bool m_channel_shuffle;
 
 	GSVector2i m_lod; // Min & Max level of detail

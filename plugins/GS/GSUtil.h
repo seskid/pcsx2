@@ -32,6 +32,7 @@ public:
 	static GS_PRIM_CLASS GetPrimClass(u32 prim);
 	static int GetVertexCount(u32 prim);
 	static int GetClassVertexCount(u32 primclass);
+	static std::string GetHEX32String(uint32_t input);
 
 	static const u32* HasSharedBitsPtr(u32 dpsm);
 	static bool HasSharedBits(u32 spsm, const u32* ptr);

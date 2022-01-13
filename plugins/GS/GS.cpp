@@ -642,6 +642,9 @@ void GSdxApp::Init()
 	m_current_configuration["override_GL_ARB_texture_view"]               = "-1";
 	m_current_configuration["override_GL_ARB_vertex_attrib_binding"]      = "-1";
 	m_current_configuration["override_GL_ARB_texture_barrier"]            = "-1";
+	m_current_configuration["enable_texture_func"]						  = "1";
+	m_current_configuration["dump_textures"]							  = "1";
+	m_current_configuration["replace_textures"]							  = "1";
 #ifdef GL_EXT_TEX_SUB_IMAGE
 	m_default_configuration["override_GL_ARB_get_texture_sub_image"]      = "-1";
 #endif

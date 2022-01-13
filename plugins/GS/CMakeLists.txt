@@ -45,6 +45,7 @@ endif()
 
 
 set(GSdxSources
+    DDS.cpp
     GS.cpp
     GSBlock.cpp
     GSClut.cpp
@@ -96,6 +97,7 @@ set(GSdxSources
     )
 
 set(GSdxHeaders
+    DDS.h
     config.h
     GSAlignedClass.h
     GSBlock.h
@@ -182,6 +184,7 @@ set(GSdxFinalSources
 set(GSdxFinalLibs
     ${OPENGL_LIBRARIES}
     ${LIBC_LIBRARIES}
+    yaml-cpp
 )
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
@@ -189,6 +192,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 endif()
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/3rdparty/include)
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
    include_directories(${CMAKE_SOURCE_DIR}/3rdparty ${CMAKE_SOURCE_DIR}/3rdparty/libpng ${CMAKE_SOURCE_DIR}/3rdparty/xz/xz/src/liblzma/api)
    add_definitions(/wd4456 /wd4458 /wd4996 /wd4995 /wd4324 /wd4100 /wd4101 /wd4201 /wd4556 /wd4127 /wd4512)
