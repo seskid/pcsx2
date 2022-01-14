@@ -26,6 +26,9 @@
 #include "yaml-cpp/yaml.h"
 #include <iostream>
 #include <fstream>
+#include <libretro.h>
+#include <string>
+#include <filename.h>
 #include <zlib.h>
 #include <iomanip>
 #include "GSRendererHW.h"
@@ -33,6 +36,10 @@
 
 // Used as a three-way flag. Made to combat the 0x00000000 CRC at the beginning. 
 int _yamlParse = 1;
+
+//Need system path reference
+retro_environment_t environ_cb;
+
 
 // A map is made to hold everything replaced to avoid
 // constant runtime.
@@ -42,6 +49,10 @@ std::map<uint32_t, std::string> _repTextures;
 const float GSRendererHW::SSR_UV_TOLERANCE = 1e-3f;
 
 int GSRendererHW::TryParseYaml() {
+
+	const char* system = nullptr;
+	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+	
 	if (m_crc == 0){
       	 log_cb(RETRO_LOG_DEBUG, "GSdx: m_crc = 0\n");
 		return 1;
@@ -54,14 +65,17 @@ int GSRendererHW::TryParseYaml() {
 
 		if (m_replace_textures)
 		{
-			std::string _dir = "txtconfig\\";
+			 wxFileName _dir(wxString(system), "");
+            _dir.AppendDir("pcsx2");
+	        _dir.AppendDir("txtconfig");
+			_dir.AppendDir(_crcText);
+			_dir.AppendDir(".yaml");
 
-			_dir.append(_crcText);
-			_dir.append(".yaml");
+			 log_cb(RETRO_LOG_DEBUG, _dir.GetFullPath());
 
-			if (stat(_dir.c_str(), &_statBuf) == 0)
+			if (_dir.FileExists())
 			{
-				YAML::Node _yamlFile = YAML::LoadFile(_dir);
+				YAML::Node _yamlFile = YAML::LoadFile(_dir.GetFullPath().ToStdString());
 
                 log_cb(RETRO_LOG_DEBUG, "GSdx: Found the texture configuration file! Processing...\n");
 				 log_cb(RETRO_LOG_DEBUG, "GSdx: Capturing textures...\n");
@@ -86,8 +100,7 @@ int GSRendererHW::TryParseYaml() {
 				
 				return 0;
 			}
-
-			else
+             else
 			{
 				  log_cb(RETRO_LOG_DEBUG,"GSdx: The config file for this game cannot be found or is invalid. Texture replacements are disabled.\n");
 			
@@ -1233,8 +1246,16 @@ void GSRendererHW::Draw()
 	if (m_dump_textures && m_enable_textures)
 	{
 		std::string _crcText = GSUtil::GetHEX32String(m_crc);
-		std::string _pathSys = "textures\\@DUMP\\";
+		std::string _pathSys = "";
+     
+	    const char* system = nullptr;
+	        environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
 
+			 wxFileName _textureDir(wxString(system), "");
+            _textureDir.AppendDir("pcsx2");
+	        _textureDir.AppendDir("textures");
+			_textureDir.AppendDir("@DUMP");
+			_pathSys = _textureDir.GetFullPath().ToStdString();
 		_pathSys.append(_crcText);
 	}
 
@@ -1260,21 +1281,7 @@ void GSRendererHW::Draw()
 	{
       	_yamlParse = TryParseYaml();
 	}
-	else{
-		 if(_yamlParse){
-			 log_cb(RETRO_LOG_DEBUG, "yamlparse is true\n");
-		 }
-		  if(m_enable_textures){
-			 log_cb(RETRO_LOG_DEBUG, "enable textures is true\n");
-		 }
-		  if(m_replace_textures){
-			 log_cb(RETRO_LOG_DEBUG, "replace texture is true\n");
-		 }
-		 log_cb(RETRO_LOG_DEBUG, "Either yamlparse,replace textures or enable textures is not true\n");
-	}
 	
-
-
 	if(IsBadFrame()) {
 		//log_cb(RETRO_LOG_WARN, "Warning skipping a draw call (%d)\n", s_n);
 		return;
@@ -1616,7 +1623,14 @@ void GSRendererHW::Draw()
 			struct stat _statBuf = {};
 
 			// Specify the path we will read from.
-			_path = "textures\\";
+		    const char* system = nullptr;
+	        environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+
+			 wxFileName _textureDir(wxString(system), "");
+            _textureDir.AppendDir("pcsx2");
+	        _textureDir.AppendDir("textures");
+			_path = _textureDir.GetFullPath().ToStdString();
+
 
 			// Indicates if a file path is found.
 			bool _fileCaptured = false;
