@@ -1261,6 +1261,15 @@ void GSRendererHW::Draw()
       	_yamlParse = TryParseYaml();
 	}
 	else{
+		 if(_yamlParse){
+			 log_cb(RETRO_LOG_DEBUG, "yamlparse is true\n");
+		 }
+		  if(m_enable_textures){
+			 log_cb(RETRO_LOG_DEBUG, "enable textures is true\n");
+		 }
+		  if(m_replace_textures){
+			 log_cb(RETRO_LOG_DEBUG, "replace texture is true\n");
+		 }
 		 log_cb(RETRO_LOG_DEBUG, "Either yamlparse,replace textures or enable textures is not true\n");
 	}
 	
