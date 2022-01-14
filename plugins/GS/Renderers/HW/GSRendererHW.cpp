@@ -28,7 +28,6 @@
 #include <fstream>
 #include <libretro.h>
 #include <string>
-#include <filename.h>
 #include <zlib.h>
 #include <iomanip>
 #include "GSRendererHW.h"
@@ -36,10 +35,6 @@
 
 // Used as a three-way flag. Made to combat the 0x00000000 CRC at the beginning. 
 int _yamlParse = 1;
-
-//Need system path reference
-retro_environment_t environ_cb;
-
 
 // A map is made to hold everything replaced to avoid
 // constant runtime.
@@ -64,17 +59,16 @@ int GSRendererHW::TryParseYaml() {
 
 		if (m_replace_textures)
 		{
-			 wxFileName _dir(wxString(system), "");
-            _dir.AppendDir("pcsx2");
-	        _dir.AppendDir("txtconfig");
-			_dir.AppendDir(_crcText);
-			_dir.AppendDir(".yaml");
+			std::string _dir = system;
+			_dir.append("\\pcsx2\\txtconfig\\");
+			_dir.append(_crcText);
+			_dir.append(".yaml");
 
-			 log_cb(RETRO_LOG_DEBUG, _dir.GetFullPath());
+			
 
-			if (_dir.FileExists())
+			if (stat(_dir.c_str(), &_statBuf) == 0)
 			{
-				YAML::Node _yamlFile = YAML::LoadFile(_dir.GetFullPath().ToStdString());
+				YAML::Node _yamlFile = YAML::LoadFile(_dir);
 
                 log_cb(RETRO_LOG_DEBUG, "GSdx: Found the texture configuration file! Processing...\n");
 				 log_cb(RETRO_LOG_DEBUG, "GSdx: Capturing textures...\n");
@@ -1245,17 +1239,15 @@ void GSRendererHW::Draw()
 	if (m_dump_textures && m_enable_textures)
 	{
 		std::string _crcText = GSUtil::GetHEX32String(m_crc);
-		std::string _pathSys = "";
+	
      
 	    const char* system = nullptr;
 	        environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
 
-			 wxFileName _textureDir(wxString(system), "");
-            _textureDir.AppendDir("pcsx2");
-	        _textureDir.AppendDir("textures");
-			_textureDir.AppendDir("@DUMP");
-			_pathSys = _textureDir.GetFullPath().ToStdString();
-		_pathSys.append(_crcText);
+				std::string _dir = system;
+            _dir.append("\\pcsx2\\textures\\");
+			_dir.append("@DUMP");
+            _dir.append(_crcText);
 	}
 
 	// If the mode is set to dumping, and the yaml data has been processed;
@@ -1609,7 +1601,12 @@ void GSRendererHW::Draw()
 	bool _isDumping = false;
 	bool _isReplacing = false;
 
-    std::string _path = "";
+	// Specify the path we will read from.
+	const char* system = nullptr;
+	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
+
+
+    std::string _path = system;
 	uint32_t _currentChecksum = 0;
 	
 
@@ -1621,16 +1618,8 @@ void GSRendererHW::Draw()
 		if (m_src && !m_src->m_from_target) { // If the texture is not a screenshot of the frame;
 			struct stat _statBuf = {};
 
-			// Specify the path we will read from.
-		    const char* system = nullptr;
-	        environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
-
-			 wxFileName _textureDir(wxString(system), "");
-            _textureDir.AppendDir("pcsx2");
-	        _textureDir.AppendDir("textures");
-			_path = _textureDir.GetFullPath().ToStdString();
-
-
+			_path.append("\\pcsx2\\textures\\");
+			
 			// Indicates if a file path is found.
 			bool _fileCaptured = false;
 
