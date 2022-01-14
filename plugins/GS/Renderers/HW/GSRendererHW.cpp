@@ -54,8 +54,7 @@ int GSRendererHW::TryParseYaml() {
 	environ_cb(RETRO_ENVIRONMENT_GET_SYSTEM_DIRECTORY, &system);
 	
 	if (m_crc == 0){
-      	 log_cb(RETRO_LOG_DEBUG, "GSdx: m_crc = 0\n");
-		return 1;
+      	 return 1;
 	}
     else if (m_enable_textures)
 	{
