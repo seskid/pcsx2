@@ -42,11 +42,13 @@ std::map<uint32_t, std::string> _repTextures;
 const float GSRendererHW::SSR_UV_TOLERANCE = 1e-3f;
 
 int GSRendererHW::TryParseYaml() {
-	if (m_crc == 0)
+	if (m_crc == 0){
+      	 log_cb(RETRO_LOG_DEBUG, "GSdx: m_crc = 0\n");
 		return 1;
-
-	else if (m_enable_textures)
+	}
+    else if (m_enable_textures)
 	{
+		 log_cb(RETRO_LOG_DEBUG, "GSdx: Textures are enabled...\n");
 		struct stat _statBuf = {};
 		std::string _crcText = GSUtil::GetHEX32String(m_crc);
 
@@ -61,8 +63,10 @@ int GSRendererHW::TryParseYaml() {
 			{
 				YAML::Node _yamlFile = YAML::LoadFile(_dir);
 
-				printf("GSdx: Found the texture configuration file! Processing...\n");
-				printf("GSdx: Capturing textures...\n");
+                log_cb(RETRO_LOG_DEBUG, "GSdx: Found the texture configuration file! Processing...\n");
+				 log_cb(RETRO_LOG_DEBUG, "GSdx: Capturing textures...\n");
+				
+				
 
 				if (_yamlFile["ProcessTEX"])
 				{
@@ -76,16 +80,18 @@ int GSRendererHW::TryParseYaml() {
 				}
 
 				else
-					printf("GSdx: Texture definition table is not found!\n");
-
-				printf("GSdx: All done!\n");
+				 log_cb(RETRO_LOG_DEBUG, "GSdx: Texture definition table is not found!\n");
+				
+                 log_cb(RETRO_LOG_DEBUG, "GSdx: All done!\n");
+				
 				return 0;
 			}
 
 			else
 			{
-				printf("GSdx: The config file for this game cannot be found or is invalid. Texture replacements are disabled.\n");
-
+				  log_cb(RETRO_LOG_DEBUG,"GSdx: The config file for this game cannot be found or is invalid. Texture replacements are disabled.\n");
+			
+                
 				m_enable_textures = 0;
 				m_replace_textures = 0;
 				m_dump_textures = 1;
@@ -1253,6 +1259,9 @@ void GSRendererHW::Draw()
 	if (_yamlParse == 1 && (m_replace_textures && m_enable_textures))
 	{
       	_yamlParse = TryParseYaml();
+	}
+	else{
+		 log_cb(RETRO_LOG_DEBUG, "Either yamlparse,replace textures or enable textures is not true\n");
 	}
 	
 
